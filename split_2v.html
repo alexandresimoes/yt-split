@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Split 2</title>
+
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0a0a;
+            font-family: 'Courier New', monospace;
+        }
+
+        html, body {
+            height: 100%;
+        }
+        
+        .player-block {
+            width: 100%;
+            height: 50vh;
+            background: #111;
+            border-bottom: 1px solid #222;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .video-container {
+            position: relative;
+            flex: 1;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .video-container iframe {
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        .video-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #0d0d0d;
+            color: #777;
+            gap: 12px;
+        }
+
+        .video-placeholder span {
+            font-size: 13px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .controls {
+            display: flex;
+            border-top: 1px solid #1e1e1e;
+        }
+
+        .video-label {
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            background: #161616;
+            color: #ff3c3c;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .url-input {
+            flex: 1;
+            background: #111;
+            border: none;
+            color: #ccc;
+            font-family: 'Courier New', monospace;
+            padding: 12px;
+        }
+
+        .url-input:focus {
+            background: #141414;
+            color: #fff;
+            outline: none;
+        }
+
+        .play-btn {
+            background: #ff3c3c;
+            border: none;
+            color: #fff;
+            padding: 0 20px;
+            cursor: pointer;
+        }
+
+        .play-btn:hover {
+            background: #ff1a1a;
+        }
+
+        .error-msg {
+            display: none;
+            background: #1a0000;
+            color: #ff6b6b;
+            font-size: 11px;
+            padding: 6px 12px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- PLAYER 1 -->
+<div class="player-block">
+    <div class="video-container" id="container1">
+        <div class="video-placeholder" id="placeholder1">
+            <span>Cole uma URL do YouTube</span>
+        </div>
+    </div>
+    <div class="controls">
+        <span class="video-label">VID 01</span>
+        <input id="input1" class="url-input" type="text">
+        <button class="play-btn" onclick="loadVideo(1)">▶</button>
+    </div>
+    <div class="error-msg" id="error1">URL inválida</div>
+</div>
+
+<!-- PLAYER 2 -->
+<div class="player-block">
+    <div class="video-container" id="container2">
+        <div class="video-placeholder" id="placeholder2">
+            <span>Cole uma URL do YouTube</span>
+        </div>
+    </div>
+    <div class="controls">
+        <span class="video-label">VID 02</span>
+        <input id="input2" class="url-input" type="text">
+        <button class="play-btn" onclick="loadVideo(2)">▶</button>
+    </div>
+    <div class="error-msg" id="error2">URL inválida</div>
+</div>
+
+<script>
+function extractVideoID(url) {
+    const patterns = [
+        /youtu\.be\/([a-zA-Z0-9_-]{11})/,
+        /youtube\.com\/watch\?(?:.*&)?v=([a-zA-Z0-9_-]{11})/,
+        /youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/
+    ];
+
+    for (let p of patterns) {
+        const match = url.match(p);
+        if (match) return match[1];
+    }
+
+    return null;
+}
+
+function loadVideo(num) {
+    const input = document.getElementById('input' + num);
+    const container = document.getElementById('container' + num);
+    const placeholder = document.getElementById('placeholder' + num);
+    const error = document.getElementById('error' + num);
+
+    const id = extractVideoID(input.value.trim());
+
+    if (!id) {
+        error.style.display = 'block';
+        return;
+    }
+
+    error.style.display = 'none';
+
+    const existing = container.querySelector('iframe');
+    if (existing) existing.remove();
+
+    placeholder.style.display = 'none';
+
+    const iframe = document.createElement('iframe');
+
+    iframe.src = `https://www.youtube-nocookie.com/embed/${id}?controls=1`;
+    iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+    iframe.referrerPolicy = "strict-origin-when-cross-origin";
+    iframe.allowFullscreen = true;
+
+    container.appendChild(iframe);
+}
+
+// ENTER suporte
+[1,2,3].forEach(n => {
+    document.getElementById('input' + n).addEventListener('keydown', e => {
+        if (e.key === 'Enter') loadVideo(n);
+    });
+});
+</script>
+
+</body>
+</html>
